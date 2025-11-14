@@ -47,6 +47,11 @@
                             <PropertyValue Property="Label" String="General Information"/>
                             <PropertyValue Property="Target" AnnotationPath="@UI.FieldGroup#GeneratedGroup"/>
                         </Record>
+                        <Record Type="UI.ReferenceFacet">
+                            <PropertyValue Property="Label" String="Items"/>
+                            <PropertyValue Property="ID" String="Items"/>
+                            <PropertyValue Property="Target" AnnotationPath="items/@UI.LineItem#Items"/>
+                        </Record>
                     </Collection>
                 </Annotation>
                 <Annotation Term="UI.LineItem">
@@ -66,6 +71,33 @@
                         <Record Type="UI.DataField">
                             <PropertyValue Property="Label" String="customerName"/>
                             <PropertyValue Property="Value" Path="customerName"/>
+                        </Record>
+                    </Collection>
+                </Annotation>
+                <Annotation Term="UI.Identification">
+                    <Collection>
+                        <Record Type="UI.DataFieldForAction">
+                            <PropertyValue Property="Action" String="OrderService.caldulateTotalAmount"/>
+                            <PropertyValue Property="Label" String="caldulateTotalAmount"/>
+                            <PropertyValue Property="Determining" Bool="true"/>
+                        </Record>
+                    </Collection>
+                </Annotation>
+            </Annotations>
+            <Annotations Target="OrderService.OrderItems">
+                <Annotation Term="UI.LineItem" Qualifier="Items">
+                    <Collection>
+                        <Record Type="UI.DataField">
+                            <PropertyValue Property="Value" Path="productName"/>
+                            <PropertyValue Property="Label" String="productName"/>
+                        </Record>
+                        <Record Type="UI.DataField">
+                            <PropertyValue Property="Value" Path="quantity"/>
+                            <PropertyValue Property="Label" String="quantity"/>
+                        </Record>
+                        <Record Type="UI.DataField">
+                            <PropertyValue Property="Value" Path="unitPrice"/>
+                            <PropertyValue Property="Label" String="unitPrice"/>
                         </Record>
                     </Collection>
                 </Annotation>

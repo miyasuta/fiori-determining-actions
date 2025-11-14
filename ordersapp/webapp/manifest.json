@@ -149,6 +149,15 @@
                     "route": "OrderItemsObjectPage"
                   }
                 }
+              },
+              "controlConfiguration": {
+                "items/@com.sap.vocabularies.UI.v1.LineItem#Items": {
+                  "tableSettings": {
+                    "creationMode": {
+                      "name": "Inline"
+                    }
+                  }
+                }
               }
             }
           }

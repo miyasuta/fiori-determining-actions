@@ -98,7 +98,7 @@
                 <Property Name="numericSeverity" Type="Edm.Byte"/>
                 <Property Name="longtextUrl" Type="Edm.String"/>
             </ComplexType>
-            <Action Name="caldulateTotalAmount" IsBound="true">
+            <Action Name="calculateTotalAmount" IsBound="true">
                 <Parameter Name="in" Type="OrderService.Orders"/>
             </Action>
             <Action Name="draftPrepare" IsBound="true" EntitySetPath="in">

@@ -54,7 +54,7 @@ Authorization: Basic {{username}}:{{password}}
 
 ### Action
 # @name Orders_CalculateTotalAmount
-POST {{server}}/odata/v4/OrderService/Orders(ID={{draftID}},IsActiveEntity=false)/OrderService.caldulateTotalAmount
+POST {{server}}/odata/v4/OrderService/Orders(ID={{draftID}},IsActiveEntity=false)/OrderService.calculateTotalAmount
 Content-Type: application/json
 
 {}

@@ -4,7 +4,7 @@ service OrderService {
     @odata.draft.enabled
     entity Orders as projection on db.Orders
     actions {
-        action caldulateTotalAmount();
+        action calculateTotalAmount();
     };
     entity OrderItems as projection on db.OrderItems;
 }

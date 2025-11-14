@@ -2,6 +2,9 @@
     <edmx:Reference Uri="https://sap.github.io/odata-vocabularies/vocabularies/UI.xml">
         <edmx:Include Namespace="com.sap.vocabularies.UI.v1" Alias="UI"/>
     </edmx:Reference>
+    <edmx:Reference Uri="https://sap.github.io/odata-vocabularies/vocabularies/Common.xml">
+        <edmx:Include Namespace="com.sap.vocabularies.Common.v1" Alias="Common"/>
+    </edmx:Reference>
     <edmx:Reference Uri="/odata/v4/OrderService/$metadata">
         <edmx:Include Namespace="OrderService"/>
     </edmx:Reference>
@@ -77,9 +80,10 @@
                 <Annotation Term="UI.Identification">
                     <Collection>
                         <Record Type="UI.DataFieldForAction">
-                            <PropertyValue Property="Action" String="OrderService.caldulateTotalAmount"/>
-                            <PropertyValue Property="Label" String="caldulateTotalAmount"/>
+                            <PropertyValue Property="Action" String="OrderService.calculateTotalAmount"/>
+                            <PropertyValue Property="Label" String="Calculate TotalAmount"/>
                             <PropertyValue Property="Determining" Bool="true"/>
+                            <Annotation Term="UI.Hidden" Path="IsActiveEntity"/>
                         </Record>
                     </Collection>
                 </Annotation>
@@ -101,6 +105,18 @@
                         </Record>
                     </Collection>
                 </Annotation>
+            </Annotations>
+            <Annotations Target="OrderService.calculateTotalAmount(OrderService.Orders)">
+                <Annotation Term="Common.SideEffects">
+                    <Record Type="Common.SideEffectsType">
+                        <PropertyValue Property="TargetProperties">
+                            <Collection>
+                                <String>in/totalAmount</String>
+                            </Collection>
+                        </PropertyValue>
+                    </Record>
+                </Annotation >
+ 
             </Annotations>
         </Schema>
     </edmx:DataServices>

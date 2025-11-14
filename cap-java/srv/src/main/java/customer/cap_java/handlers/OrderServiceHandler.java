@@ -25,7 +25,7 @@ import cds.gen.orderservice.OrderItems;
 import cds.gen.orderservice.OrderService_;
 import cds.gen.orderservice.Orders;
 import cds.gen.orderservice.Orders_;
-import cds.gen.orderservice.OrdersCaldulateTotalAmountContext;
+import cds.gen.orderservice.OrdersCalculateTotalAmountContext;
 
 @Component
 @ServiceName(OrderService_.CDS_NAME)
@@ -39,7 +39,7 @@ public class OrderServiceHandler implements EventHandler {
     }
 
     @On(entity = Orders_.CDS_NAME)
-    public void onCaldulateTotalAmount(OrdersCaldulateTotalAmountContext context) {
+    public void onCalculateTotalAmount(OrdersCalculateTotalAmountContext context) {
         // Get the order ID from the context using CqnAnalyzer
         CqnAnalyzer analyzer = CqnAnalyzer.create(context.getModel());
         Map<String, Object> keys = analyzer.analyze(context.getCqn().ref()).targetKeys();

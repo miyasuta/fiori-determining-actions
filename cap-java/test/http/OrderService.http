@@ -1,0 +1,60 @@
+@server=http://localhost:8080
+@username=authenticated
+@password=
+
+
+### Orders
+# @name Orders_GET
+GET {{server}}/odata/v4/OrderService/Orders
+Authorization: Basic {{username}}:{{password}}
+
+
+### Orders Drafts GET
+# @name Orders_Drafts_GET
+GET {{server}}/odata/v4/OrderService/Orders?$filter=(IsActiveEntity eq false)
+Authorization: Basic {{username}}:{{password}}
+
+
+### Orders Draft POST
+# @name Orders_Draft_POST
+POST {{server}}/odata/v4/OrderService/Orders
+Content-Type: application/json
+Authorization: Basic {{username}}:{{password}}
+
+{
+  "customerName": "customerName-1667516",
+  "oderDate": "2021-02-09",
+  "totalAmount": 15947603.11,
+  "items": [
+    {
+      "productName": "productName-8630608",
+      "quantity": 3,
+      "unitPrice": 100
+    },
+    {
+      "productName": "productName-8630609",
+      "quantity": 2,
+      "unitPrice": 100
+    }
+  ]
+}
+
+
+### Result from POST request above
+@draftID={{Orders_Draft_POST.response.body.$.ID}}
+
+
+### Orders Draft Activate
+# @name Orders_Draft_Activate
+POST {{server}}/odata/v4/OrderService/Orders(ID={{draftID}},IsActiveEntity=false)/OrderService.draftActivate
+Content-Type: application/json
+Authorization: Basic {{username}}:{{password}}
+
+{}
+
+### Action
+# @name Orders_CalculateTotalAmount
+POST {{server}}/odata/v4/OrderService/Orders(ID={{draftID}},IsActiveEntity=false)/OrderService.caldulateTotalAmount
+Content-Type: application/json
+
+{}

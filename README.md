@@ -9,13 +9,12 @@ This project demonstrates the behavior of Determining Actions in SAP Fiori Eleme
 - **Determining Actions visibility**: Actions are displayed in the footer not only in edit mode but also in display mode
 - **Error handling**: When an action execution returns an error:
   - Single error: Displayed as a Message Box
-  ![alt text](image.png)
-
   - Multiple errors: Displayed as a Message View
-  ![alt text](image-1.png)
-
   - When highlighting a target field: Displayed as a Message Popover
-  ![alt text](image-3.png)
+
+![Message Box](image.png)
+![Message View](image-1.png)
+![Message Popover](image-3.png)
 
 ## How to Run
 

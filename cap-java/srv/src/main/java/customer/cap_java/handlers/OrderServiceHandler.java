@@ -3,6 +3,7 @@ package customer.cap_java.handlers;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,15 +14,20 @@ import com.sap.cds.ql.Select;
 import com.sap.cds.ql.Update;
 import com.sap.cds.ql.cqn.CqnAnalyzer;
 import com.sap.cds.ql.cqn.CqnSelect;
+import com.sap.cds.reflect.CdsEvent;
 import com.sap.cds.services.ErrorStatuses;
 import com.sap.cds.services.ServiceException;
+import com.sap.cds.services.cds.CdsCreateEventContext;
+import com.sap.cds.services.cds.CqnService;
 import com.sap.cds.services.draft.DraftService;
 import com.sap.cds.services.handler.EventHandler;
+import com.sap.cds.services.handler.annotations.Before;
 import com.sap.cds.services.handler.annotations.On;
 import com.sap.cds.services.handler.annotations.ServiceName;
 import com.sap.cds.services.persistence.PersistenceService;
 
 import cds.gen.orderservice.OrderItems;
+import cds.gen.orderservice.OrderItems_;
 import cds.gen.orderservice.OrderService_;
 import cds.gen.orderservice.Orders;
 import cds.gen.orderservice.Orders_;
@@ -61,29 +67,40 @@ public class OrderServiceHandler implements EventHandler {
             throw new ServiceException(ErrorStatuses.BAD_REQUEST, "No items found for this order");
         }
 
-        // Calculate total amount and validate
-        BigDecimal totalAmount = BigDecimal.ZERO;
-
+        // Validate all items first
         for (int i = 0; i < items.size(); i++) {
             OrderItems item = items.get(i);
             Integer quantity = item.getQuantity();
             BigDecimal unitPrice = item.getUnitPrice();
 
-            // Validate that quantity and unitPrice are set
             if (quantity == null) {
-                throw new ServiceException(ErrorStatuses.BAD_REQUEST,
-                    "Quantity is not set for item: " + item.getProductName())
-                    .messageTarget("items(" + i + ")/quantity");
+                context.getMessages().error("Quantity is not set for item: " + item.getProductName())
+                // .target("items(" + i + ")/quantity");
+                .target(Orders_.class, o -> o
+                    .items(it -> it.ID().eq(item.getId())
+                        .and(it.IsActiveEntity().eq(false)))  // Draftモードの場合
+                    .quantity()
+                );
             }
 
             if (unitPrice == null) {
-                throw new ServiceException(ErrorStatuses.BAD_REQUEST,
-                    "Unit price is not set for item: " + item.getProductName())
-                    .messageTarget("items(" + i + ")/unitPrice");
+                context.getMessages().error("Unit price is not set for item: " + item.getProductName())
+                // .target("items(" + i + ")/unitPrice");
+                                .target(Orders_.class, o -> o
+                    .items(it -> it.ID().eq(item.getId())
+                        .and(it.IsActiveEntity().eq(false)))  // Draftモードの場合
+                        .unitPrice()
+                );
             }
+        }
 
-            // Calculate line item total
-            BigDecimal lineTotal = unitPrice.multiply(new BigDecimal(quantity));
+        // If there are any validation errors, stop processing
+        context.getMessages().throwIfError();
+
+        // Calculate total amount (only if validation passed)
+        BigDecimal totalAmount = BigDecimal.ZERO;
+        for (OrderItems item : items) {
+            BigDecimal lineTotal = item.getUnitPrice().multiply(new BigDecimal(item.getQuantity()));
             totalAmount = totalAmount.add(lineTotal);
         }
 

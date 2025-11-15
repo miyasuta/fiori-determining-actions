@@ -83,7 +83,7 @@
                             <PropertyValue Property="Action" String="OrderService.calculateTotalAmount"/>
                             <PropertyValue Property="Label" String="Calculate TotalAmount"/>
                             <PropertyValue Property="Determining" Bool="true"/>
-                            <Annotation Term="UI.Hidden" Path="IsActiveEntity"/>
+                            <!-- <Annotation Term="UI.Hidden" Path="IsActiveEntity"/> -->
                         </Record>
                     </Collection>
                 </Annotation>

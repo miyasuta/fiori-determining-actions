@@ -16,6 +16,17 @@ This project demonstrates the behavior of Determining Actions in SAP Fiori Eleme
 ![Message View](image-1.png)
 ![Message Popover](image-3.png)
 
+### Example Error Message Targeting an Item
+```
+{
+    "error": {
+        "code": "400",
+        "message": "Quantity is not set for item: Laptop",
+        "target": "in/items(ID=650e8400-e29b-41d4-a716-446655440001,IsActiveEntity=false)/quantity"
+    }
+}
+```
+
 ## How to Run
 
 ### Start the CAP Java backend

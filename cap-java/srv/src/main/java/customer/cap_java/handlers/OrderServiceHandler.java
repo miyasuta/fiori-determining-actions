@@ -19,7 +19,6 @@ import com.sap.cds.services.ErrorStatuses;
 import com.sap.cds.services.ServiceException;
 import com.sap.cds.services.cds.CdsCreateEventContext;
 import com.sap.cds.services.cds.CqnService;
-import com.sap.cds.services.draft.DraftService;
 import com.sap.cds.services.handler.EventHandler;
 import com.sap.cds.services.handler.annotations.Before;
 import com.sap.cds.services.handler.annotations.On;
@@ -46,19 +45,23 @@ public class OrderServiceHandler implements EventHandler {
 
     @On(entity = Orders_.CDS_NAME)
     public void onCalculateTotalAmount(OrdersCalculateTotalAmountContext context) {
-        // Get the order ID from the context using CqnAnalyzer
+        // Get the order ID and IsActiveEntity from the context using CqnAnalyzer
         CqnAnalyzer analyzer = CqnAnalyzer.create(context.getModel());
         Map<String, Object> keys = analyzer.analyze(context.getCqn().ref()).targetKeys();
         String orderId = (String) keys.get(Orders.ID);
+        Boolean isActiveEntityTemp = (Boolean) keys.get(Orders.IS_ACTIVE_ENTITY);
 
-        DraftService orderDraftService = (DraftService) context.getService();
+        // Default to true if not specified (for active entities)
+        final Boolean isActiveEntity = (isActiveEntityTemp != null) ? isActiveEntityTemp : true;
 
-        // Query the draft order with its items (IsActiveEntity = false for drafts)
+        CqnService orderService = context.getService();
+
+        // Query the order with its items based on IsActiveEntity flag
         CqnSelect selectOrder = Select.from(Orders_.class)
             .columns(o -> o._all(), o -> o.items().expand())
-            .where(o -> o.ID().eq(orderId).and(o.IsActiveEntity().eq(false)));
+            .where(o -> o.ID().eq(orderId).and(o.IsActiveEntity().eq(isActiveEntity)));
 
-        Result result = orderDraftService.run(selectOrder);
+        Result result = orderService.run(selectOrder);
         Orders order = result.single(Orders.class);
 
         List<OrderItems> items = order.getItems();
@@ -75,21 +78,19 @@ public class OrderServiceHandler implements EventHandler {
 
             if (quantity == null) {
                 context.getMessages().error("Quantity is not set for item: " + item.getProductName())
-                // .target("items(" + i + ")/quantity");
                 .target(Orders_.class, o -> o
                     .items(it -> it.ID().eq(item.getId())
-                        .and(it.IsActiveEntity().eq(false)))  // Draftモードの場合
+                        .and(it.IsActiveEntity().eq(isActiveEntity)))
                     .quantity()
                 );
             }
 
             if (unitPrice == null) {
                 context.getMessages().error("Unit price is not set for item: " + item.getProductName())
-                // .target("items(" + i + ")/unitPrice");
-                                .target(Orders_.class, o -> o
+                .target(Orders_.class, o -> o
                     .items(it -> it.ID().eq(item.getId())
-                        .and(it.IsActiveEntity().eq(false)))  // Draftモードの場合
-                        .unitPrice()
+                        .and(it.IsActiveEntity().eq(isActiveEntity)))
+                    .unitPrice()
                 );
             }
         }
@@ -104,17 +105,18 @@ public class OrderServiceHandler implements EventHandler {
             totalAmount = totalAmount.add(lineTotal);
         }
 
-        // Update the draft order's totalAmount
+        // Update the order's totalAmount
         Orders updatedOrder = Orders.create();
         updatedOrder.setId(orderId);
         updatedOrder.setTotalAmount(totalAmount);
 
         // log updated total amount
-        logger.info("Updating draft order ID {} with total amount: {}", orderId, totalAmount);
+        logger.info("Updating order ID {} (IsActiveEntity={}) with total amount: {}",
+            orderId, isActiveEntity, totalAmount);
 
-        orderDraftService.run(Update.entity(Orders_.class)
+        orderService.run(Update.entity(Orders_.class)
             .data(updatedOrder)
-            .where(o -> o.ID().eq(orderId).and(o.IsActiveEntity().eq(false))));
+            .where(o -> o.ID().eq(orderId).and(o.IsActiveEntity().eq(isActiveEntity))));
 
         context.setCompleted();
     }
